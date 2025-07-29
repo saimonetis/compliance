@@ -1,0 +1,29 @@
+apiVersion: config.stackrox.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: cis-docker-5.9-ensure-the-host-s-network-namespace-is-not-shared
+spec:
+  policyName: Maria CIS-Docker-5.9 - Ensure the host's network namespace is not shared
+  description: 'Maria CIS Docker Benchmark 5.9: Ensure the host''s network namespace is not shared'
+  rationale: Sharing the host network namespace provides the container full access to the host's network interfaces
+  remediation: Do not use host network mode for containers
+  categories:
+    - Security Best Practices
+  lifecycleStages:
+    - DEPLOY
+  eventSource: NOT_APPLICABLE
+  severity: HIGH_SEVERITY
+  policySections:
+    - sectionName: Container Configuration
+      policyGroups:
+        - fieldName: Host Network
+          booleanOperator: OR
+          values:
+            - value: "true"
+  mitreAttackVectors:
+    - tactic: TA0004
+      techniques:
+        - T1611
+  criteriaLocked: false
+  mitreVectorsLocked: false
+  isDefault: false
