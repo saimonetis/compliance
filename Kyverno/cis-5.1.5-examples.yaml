@@ -1,0 +1,128 @@
+# Examples for CIS-5.1.5 Kyverno Policy Testing
+
+---
+# BAD EXAMPLE - This pod will be BLOCKED by the policy
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-using-default-sa
+  namespace: default
+  labels:
+    example: "blocked-by-policy"
+spec:
+  serviceAccountName: default  # ❌ This will be blocked
+  containers:
+  - name: app
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+
+---
+# BAD EXAMPLE - This pod will also be BLOCKED (implicit default SA)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-no-sa-specified
+  namespace: default
+  labels:
+    example: "blocked-by-policy"
+spec:
+  # ❌ No serviceAccountName specified = uses default implicitly
+  containers:
+  - name: app
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+
+---
+# GOOD EXAMPLE - Dedicated Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: webapp-service-account
+  namespace: default
+  labels:
+    app: webapp
+automountServiceAccountToken: false  # Optional: disable token mounting if not needed
+
+---
+# GOOD EXAMPLE - This pod will be ALLOWED
+apiVersion: v1
+kind: Pod
+metadata:
+  name: good-pod-dedicated-sa
+  namespace: default
+  labels:
+    example: "allowed-by-policy"
+spec:
+  serviceAccountName: webapp-service-account  # ✅ Uses dedicated service account
+  automountServiceAccountToken: false         # ✅ Optionally disable token mounting
+  containers:
+  - name: app
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+
+---
+# GOOD EXAMPLE - Deployment with dedicated Service Account
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      serviceAccountName: webapp-service-account  # ✅ Uses dedicated service account
+      automountServiceAccountToken: false
+      containers:
+      - name: webapp
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+
+---
+# RBAC Example - Minimal permissions for the service account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: minimal-permissions-sa
+  namespace: default
+automountServiceAccountToken: true  # Only if the app needs API access
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: minimal-permissions-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list"]  # Only specific permissions needed
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: minimal-permissions-binding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: minimal-permissions-sa
+  namespace: default
+roleRef:
+  kind: Role
+  name: minimal-permissions-role
+  apiGroup: rbac.authorization.k8s.io
