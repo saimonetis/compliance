@@ -1,0 +1,19 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-ns-labels
+spec:
+  validationFailureAction: audit
+  background: true
+  rules:
+  - name: check-for-labels-on-namespace
+    match:
+      resources:
+        kinds:
+        - Namespace
+    validate:
+      message: "The label `thisshouldntexist` is required."
+      pattern:
+        metadata:
+          labels:
+            thisshouldntexist: "?*"

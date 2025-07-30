@@ -1,0 +1,43 @@
+apiVersion: config.stackrox.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: cis-gke-eks-aks-generic-rbac-4.1.3-minimize-wildcard-usage
+spec:
+  policyName: CIS-GKE-EKS-AKS-Generic-RBAC-4.1.3 - Minimize wildcard use in Roles and ClusterRoles
+  description: 'CIS Kubernetes Benchmark 4.1.3: Minimize wildcard use in Roles and ClusterRoles'
+  rationale: Using wildcards (*) in RBAC roles grants overly broad permissions that violate the principle of least privilege. This increases the attack surface and potential for privilege escalation.
+  remediation: |
+    Review roles and clusterroles for wildcard usage:
+    kubectl get roles,clusterroles -A -o yaml | grep -B 2 -A 2 '"\*"'
+    
+    Replace wildcards with specific resources and verbs:
+    kubectl edit role/clusterrole [role-name]
+    
+    Example - Change from:
+      resources: ["*"]
+      verbs: ["*"]
+    To:
+      resources: ["pods", "services"]
+      verbs: ["get", "list"]
+  categories:
+    - Security Best Practices
+    - RBAC
+  lifecycleStages:
+    - DEPLOY
+  eventSource: NOT_APPLICABLE
+  severity: MEDIUM_SEVERITY
+  policySections:
+    - sectionName: RBAC Configuration
+      policyGroups:
+        - fieldName: Service Account
+          booleanOperator: AND
+          values:
+            - value: ".*"
+  mitreAttackVectors:
+    - tactic: TA0004
+      techniques:
+        - T1078
+        - T1068
+  criteriaLocked: false
+  mitreVectorsLocked: false
+  isDefault: false 
