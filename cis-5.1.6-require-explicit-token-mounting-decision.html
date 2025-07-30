@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIS-5.1.6 - Require Explicit Token Mounting Decision</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'RedHatText', 'Segoe UI', Arial, sans-serif; background: #f5f5f5; color: #151515; line-height: 1.6; }
+        .header { background: #212427; color: white; padding: 20px; text-align: center; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+        .check-header { background: white; padding: 30px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .check-title { font-size: 28px; font-weight: 600; color: #151515; margin-bottom: 10px; }
+        .check-control { font-size: 16px; color: #ee0000; font-weight: 500; margin-bottom: 20px; }
+        .check-description { font-size: 16px; color: #6a6e73; margin-bottom: 20px; }
+        .yaml-section { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .yaml-title { font-size: 20px; font-weight: 600; margin-bottom: 15px; color: #151515; }
+        pre { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 20px; overflow-x: auto; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 14px; line-height: 1.4; }
+        code { color: #e83e8c; }
+        .back-link { display: inline-block; background: #ee0000; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-bottom: 20px; transition: background 0.2s; }
+        .back-link:hover { background: #cc0000; }
+        .rule-info { background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; padding: 15px; margin-bottom: 20px; }
+        .rule-info h4 { color: #0c5460; margin-bottom: 5px; }
+        .rule-info p { color: #0c5460; margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CIS Kubernetes Benchmark Check Details</h1>
+    </div>
+    
+    <div class="container">
+        <a href="compliance-dashboard.html" class="back-link">← Back to Dashboard</a>
+        
+        <div class="check-header">
+            <div class="check-title">Require Explicit Token Mounting Decision</div>
+            <div class="check-control">CIS Kubernetes Benchmark 5.1.6</div>
+            <div class="check-description">
+                Service account token mounting must be explicitly configured. This ensures that developers 
+                make conscious decisions about whether pods need API server access via service account tokens.
+            </div>
+            
+            <div class="rule-info">
+                <h4>Rule: require-explicit-token-mounting-decision</h4>
+                <p>Requires pods to explicitly set automountServiceAccountToken field (true or false)</p>
+            </div>
+        </div>
+        
+        <div class="yaml-section">
+            <div class="yaml-title">YAML Configuration</div>
+            <pre><code>- name: require-explicit-token-mounting-decision
+  match:
+    any:
+    - resources:
+        kinds:
+        - Pod
+  validate:
+    message: >-
+      CIS-5.1.6: Service account token mounting must be explicitly configured. 
+      Set automountServiceAccountToken to false unless API access is required.
+      If API access is needed, add annotation 'security.kubernetes.io/api-access: required'.
+    pattern:
+      spec:
+        automountServiceAccountToken: "?*"</code></pre>
+        </div>
+    </div>
+</body>
+</html> 

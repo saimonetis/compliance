@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Cluster Security - Compliance Coverage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'RedHatText', 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #151515;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: #212427;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .brand {
+            padding: 16px 20px;
+            background: #151515;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .brand-logo {
+            width: 24px;
+            height: 24px;
+            background: #ee0000;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .brand-text {
+            font-size: 14px;
+            line-height: 1.3;
+        }
+        
+        .nav-menu {
+            padding: 8px 0;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        
+        .nav-item:hover {
+            background: #2c2f33;
+        }
+        
+        .nav-item.active {
+            border-left-color: #0066cc;
+            background: #2c2f33;
+        }
+        
+        .nav-item.submenu {
+            padding-left: 40px;
+            font-size: 13px;
+            color: #b8bcc8;
+        }
+        
+        .nav-item.submenu.active {
+            color: white;
+            background: #0066cc;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            background: white;
+        }
+        
+        .header {
+            background: #212427;
+            border-bottom: 1px solid #393f44;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+        }
+        
+        .redhat-logo {
+            width: 40px;
+            height: 40px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><path fill="%23ee0000" d="M24.6 11.2c-.9-.4-1.9-.6-2.9-.6-2.3 0-4.4 1.2-5.6 3.1-.7 1.1-1 2.4-1 3.7 0 .4 0 .8.1 1.2-.7-.1-1.4-.2-2.1-.2-1.6 0-3.1.3-4.5.9-.4.2-.8.4-1.2.6-.2.1-.4.3-.6.4-.1.1-.3.2-.4.3-.1.1-.2.2-.3.3-.1.1-.2.2-.3.3-.1.1-.1.2-.2.3-.1.1-.1.2-.1.3 0 .1 0 .2.1.3.1.1.1.2.2.3.1.1.2.2.3.3.1.1.2.2.3.3.1.1.3.2.4.3.2.1.4.3.6.4.4.2.8.4 1.2.6 1.4.6 2.9.9 4.5.9.7 0 1.4-.1 2.1-.2-.1.4-.1.8-.1 1.2 0 1.3.3 2.6 1 3.7 1.2 1.9 3.3 3.1 5.6 3.1 1 0 2-.2 2.9-.6 1.8-.8 3.1-2.4 3.6-4.3.2-.8.2-1.6.1-2.4.6.1 1.2.1 1.8.1 2.7 0 5.2-.7 7.4-2 .5-.3 1-.7 1.4-1.1.2-.2.4-.4.6-.6.1-.1.2-.3.3-.4.1-.1.2-.3.2-.4.1-.1.1-.3.1-.4 0-.1 0-.3-.1-.4-.1-.1-.1-.3-.2-.4-.1-.1-.2-.3-.3-.4-.2-.2-.4-.4-.6-.6-.4-.4-.9-.8-1.4-1.1-2.2-1.3-4.7-2-7.4-2-.6 0-1.2 0-1.8.1.1-.8.1-1.6-.1-2.4-.5-1.9-1.8-3.5-3.6-4.3z"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        
+        .header-title {
+            color: white;
+        }
+        
+        .header-title-main {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        
+        .header-title-sub {
+            font-size: 14px;
+            color: #c1c7cd;
+            line-height: 1.2;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #c1c7cd;
+            font-size: 14px;
+        }
+        
+        .user-info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .user-info-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .user-dropdown {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .content {
+            padding: 24px;
+        }
+        
+        .section-header {
+            margin-bottom: 8px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .section-description {
+            color: #6a6e73;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #d2d2d2;
+            margin-bottom: 24px;
+        }
+        
+        .tab {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            border-bottom-color: #0066cc;
+            color: #0066cc;
+        }
+        
+        .tab:hover {
+            background: #f5f5f5;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* In Progress Styling */
+        .in-progress {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .in-progress-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .in-progress h2 {
+            font-size: 28px;
+            color: #151515;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .in-progress p {
+            font-size: 18px;
+            color: #6a6e73;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .progress-description {
+            font-size: 14px;
+            color: #8b949e;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+        
+        /* Profile Selection */
+        .profile-section {
+            margin-bottom: 24px;
+        }
+        
+        .profile-selector {
+            display: inline-block;
+            background: #0066cc;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        
+        /* Coverage Stats */
+        .coverage-stats {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 1px solid #d2d2d2;
+            border-radius: 3px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .stat-number.pass { color: #3e8635; }
+        .stat-number.fail { color: #c9190b; }
+        .stat-number.total { color: #0066cc; }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6a6e73;
+            font-weight: 500;
+        }
+        
+        .compliance-chart {
+            background: white;
+            border: 1px solid #d2d2d2;
+            border-radius: 3px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 16px;
+        }
+        
+        .chart-background {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #3e8635 0% 58%,
+                #c9190b 58% 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chart-center {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #151515;
+        }
+        
+        .chart-legend {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .legend-color.pass { background: #3e8635; }
+        .legend-color.fail { background: #c9190b; }
+        
+        /* Controls Table */
+        .controls-section {
+            background: white;
+            border: 1px solid #d2d2d2;
+            border-radius: 3px;
+        }
+        
+        .controls-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #d2d2d2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .controls-title {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .pagination {
+            font-size: 14px;
+            color: #6a6e73;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .controls-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .controls-table th {
+            background: #f5f5f5;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 14px;
+            color: #151515;
+            border-bottom: 1px solid #d2d2d2;
+        }
+        
+        .controls-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            vertical-align: top;
+        }
+        
+        .controls-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .check-name {
+            color: #0066cc;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .check-name:hover {
+            text-decoration: underline;
+        }
+        
+        .control-id {
+            font-weight: 600;
+            color: #151515;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+        
+        .status-icon.pass { background: #3e8635; }
+        .status-icon.fail { background: #c9190b; }
+        
+        .compliance-bar {
+            width: 100px;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .compliance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3e8635, #92d400);
+            transition: width 0.3s ease;
+        }
+        
+        .compliance-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 11px;
+            font-weight: 600;
+            color: #151515;
+        }
+        
+        .resource-info {
+            font-size: 12px;
+            color: #6a6e73;
+            margin-top: 4px;
+        }
+        
+        .severity-medium {
+            color: #f0ab00;
+            font-weight: 500;
+        }
+        
+        .policy-category {
+            font-size: 12px;
+            color: #6a6e73;
+        }
+        
+        @media (max-width: 1200px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">🎩</div>
+                <div class="brand-text">
+                    <div style="font-weight: 600;">Red Hat</div>
+                    <div style="font-size: 12px;">Advanced Cluster Security<br>for Kubernetes</div>
+                </div>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-item">Dashboard</div>
+                <div class="nav-item">Network</div>
+                <div class="nav-item">Violations</div>
+                <div class="nav-item active">Compliance</div>
+                <div class="nav-item submenu active">Workload Compliance</div>
+                <div class="nav-item submenu">OpenShift Coverage</div>
+                <div class="nav-item submenu">OpenShift Schedules</div>
+                <div class="nav-item submenu">Dashboard</div>
+                <div class="nav-item">Vulnerability Management</div>
+                <div class="nav-item">Configuration Management</div>
+                <div class="nav-item">Risk</div>
+                <div class="nav-item">Platform Configuration</div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-brand">
+                    <div class="header-logo">
+                        <div class="redhat-logo"></div>
+                    </div>
+                    <div class="header-title">
+                        <div class="header-title-main">Red Hat Advanced Cluster Security</div>
+                        <div class="header-title-sub">for Kubernetes</div>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="user-info-item">
+                        <span>🔍</span>
+                        <span>Search</span>
+                    </div>
+                    <div class="user-info-item">
+                        <span>💻</span>
+                        <span>CLI</span>
+                    </div>
+                    <div class="user-info-item">
+                        <span>🔔</span>
+                    </div>
+                    <div class="user-info-item">
+                        <span>❓</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <span>MSM ▼</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div class="section-header">
+                    <div class="section-description">
+                        Assess profile compliance for nodes and platform resources across clusters
+                    </div>
+                </div>
+                
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active">CIS-K8S</div>
+                    <div class="tab">CIS-Docker</div>
+                </div>
+                
+                <!-- Tab Content -->
+                <div id="cis-k8s-content" class="tab-content active">
+                    <!-- Profile Selection -->
+                    <div class="profile-section">
+                        <button class="profile-selector">cis-k8s-kyverno</button>
+                    </div>
+                
+                <!-- Coverage Statistics -->
+                <div class="coverage-stats">
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <div class="stat-number total">14</div>
+                            <div class="stat-label">Total Checks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number pass">10</div>
+                            <div class="stat-label">Passing</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number fail">8</div>
+                            <div class="stat-label">Failing</div>
+                        </div>
+                    </div>
+                    
+                    <div class="compliance-chart">
+                        <div class="chart-container">
+                            <div class="chart-background">
+                                <div class="chart-center">71%</div>
+                            </div>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color pass"></div>
+                                <span>Passing</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color fail"></div>
+                                <span>Failing</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Controls Table -->
+                <div class="controls-section">
+                    <div class="controls-header">
+                        <div class="controls-title">Checks</div>
+                        <div class="pagination">1 - 7 of 7</div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="controls-table">
+                            <thead>
+                                <tr>
+                                    <th>Check</th>
+                                    <th>Controls</th>
+                                    <th>Pass status</th>
+                                    <th>Fail status</th>
+                                    <th>Manual status</th>
+                                    <th>Other status</th>
+                                    <th>Compliance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="check-name"><a href="cis-5.1.5-prevent-default-service-account.html" style="text-decoration: none; color: inherit;">cis-5.1.5-prevent-default-service-account</a></div>
+                                        <div class="resource-info">CIS Kubernetes Benchmark 5.1.5: Ensure that default service accounts are not actively used</div>
+                                        <div class="policy-category">Security Best Practices, CIS Kubernetes Benchmark</div>
+                                    </td>
+                                    <td><span class="control-id">CIS-K8S 5.1.5</span></td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon pass">✓</span>
+                                            <span>1 pod</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon fail">✗</span>
+                                            <span>2 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="compliance-bar">
+                                            <div class="compliance-fill" style="width: 33%"></div>
+                                            <div class="compliance-text">33%</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="check-name"><a href="cis-5.1.5-prevent-default-service-account-automount.html" style="text-decoration: none; color: inherit;">cis-5.1.5-prevent-default-service-account-automount</a></div>
+                                        <div class="resource-info">Prevents automatic mounting of default service account tokens</div>
+                                        <div class="policy-category">Security Best Practices, CIS Kubernetes Benchmark</div>
+                                    </td>
+                                    <td><span class="control-id">CIS-K8S 5.1.5</span></td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon pass">✓</span>
+                                            <span>1 pod</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon fail">✗</span>
+                                            <span>2 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="compliance-bar">
+                                            <div class="compliance-fill" style="width: 33%"></div>
+                                            <div class="compliance-text">33%</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="check-name"><a href="cis-5.1.5-prevent-empty-service-account.html" style="text-decoration: none; color: inherit;">cis-5.1.5-prevent-empty-service-account</a></div>
+                                        <div class="resource-info">Ensures service account is explicitly specified in pod specs</div>
+                                        <div class="policy-category">Security Best Practices, CIS Kubernetes Benchmark</div>
+                                    </td>
+                                    <td><span class="control-id">CIS-K8S 5.1.5</span></td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon pass">✓</span>
+                                            <span>3 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="compliance-bar">
+                                            <div class="compliance-fill" style="width: 100%"></div>
+                                            <div class="compliance-text">100%</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="check-name"><a href="cis-5.1.6-require-explicit-token-mounting-decision.html" style="text-decoration: none; color: inherit;">cis-5.1.6-require-explicit-token-mounting-decision</a></div>
+                                        <div class="resource-info">Ensures service account token mounting is explicitly configured</div>
+                                        <div class="policy-category">Security Best Practices, CIS Kubernetes Benchmark</div>
+                                    </td>
+                                    <td><span class="control-id">CIS-K8S 5.1.6</span></td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon pass">✓</span>
+                                            <span>2 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon fail">✗</span>
+                                            <span>1 pod</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="compliance-bar">
+                                            <div class="compliance-fill" style="width: 67%"></div>
+                                            <div class="compliance-text">67%</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="check-name"><a href="cis-5.1.6-validate-api-access-annotation-when-enabled.html" style="text-decoration: none; color: inherit;">cis-5.1.6-validate-api-access-annotation-when-enabled</a></div>
+                                        <div class="resource-info">Validates proper annotation when service account token mounting is enabled</div>
+                                        <div class="policy-category">Security Best Practices, CIS Kubernetes Benchmark</div>
+                                    </td>
+                                    <td><span class="control-id">CIS-K8S 5.1.6</span></td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon pass">✓</span>
+                                            <span>1 pod</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon fail">✗</span>
+                                            <span>2 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="compliance-bar">
+                                            <div class="compliance-fill" style="width: 33%"></div>
+                                            <div class="compliance-text">33%</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="check-name"><a href="cis-5.1.6-prevent-default-sa-with-token-mounting.html" style="text-decoration: none; color: inherit;">cis-5.1.6-prevent-default-sa-with-token-mounting</a></div>
+                                        <div class="resource-info">Prevents using default service account with token mounting enabled</div>
+                                        <div class="policy-category">Security Best Practices, CIS Kubernetes Benchmark</div>
+                                    </td>
+                                    <td><span class="control-id">CIS-K8S 5.1.6</span></td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon pass">✓</span>
+                                            <span>1 pod</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon fail">✗</span>
+                                            <span>1 pod</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-indicator">
+                                            <span class="status-icon" style="background: #6a6e73;">-</span>
+                                            <span>0 pods</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="compliance-bar">
+                                            <div class="compliance-fill" style="width: 50%"></div>
+                                            <div class="compliance-text">50%</div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div> <!-- End CIS-K8S content -->
+                
+                <!-- CIS-Docker Tab Content -->
+                <div id="cis-docker-content" class="tab-content">
+                    <div class="in-progress">
+                        <div class="in-progress-icon">🚧</div>
+                        <h2>CIS Docker Benchmark</h2>
+                        <p>In Progress</p>
+                        <div class="progress-description">
+                            Docker security compliance checks are currently being developed and will be available soon.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Hide all tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show the corresponding content
+                const tabText = this.textContent.trim();
+                if (tabText === 'CIS-K8S') {
+                    document.getElementById('cis-k8s-content').classList.add('active');
+                } else if (tabText === 'CIS-Docker') {
+                    document.getElementById('cis-docker-content').classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

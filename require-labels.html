@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Policy - Require Labels</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'RedHatText', 'Segoe UI', Arial, sans-serif; background: #f5f5f5; color: #151515; }
+        .container { display: flex; min-height: 100vh; }
+        .sidebar { width: 240px; background: #212427; color: white; position: fixed; height: 100vh; overflow-y: auto; }
+        .brand { padding: 20px; border-bottom: 1px solid #393f44; display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 32px; height: 32px; background: #ee0000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .nav-menu { padding: 20px 0; }
+        .nav-item { padding: 12px 24px; cursor: pointer; transition: background 0.2s; font-size: 14px; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); }
+        .nav-item.active { background: #ee0000; font-weight: 500; }
+        .nav-item.submenu { padding-left: 40px; font-size: 13px; color: #c1c7cd; }
+        .nav-item.submenu.active { background: rgba(238,0,0,0.3); color: white; }
+        .main-content { margin-left: 240px; flex: 1; background: #f5f5f5; }
+        .header { background: #212427; border-bottom: 1px solid #393f44; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .header-logo { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-right: 8px; }
+        .redhat-logo { width: 40px; height: 40px; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><path fill="%23ee0000" d="M24.6 11.2c-.9-.4-1.9-.6-2.9-.6-2.3 0-4.4 1.2-5.6 3.1-.7 1.1-1 2.4-1 3.7 0 .4 0 .8.1 1.2-.7-.1-1.4-.2-2.1-.2-1.6 0-3.1.3-4.5.9-.4.2-.8.4-1.2.6-.2.1-.4.3-.6.4-.1.1-.3.2-.4.3-.1.1-.2.2-.3.3-.1.1-.2.2-.3.3-.1.1-.1.2-.2.3-.1.1-.1.2-.1.3 0 .1 0 .2.1.3.1.1.1.2.2.3.1.1.2.2.3.3.1.1.2.2.3.3.1.1.3.2.4.3.2.1.4.3.6.4.4.2.8.4 1.2.6 1.4.6 2.9.9 4.5.9.7 0 1.4-.1 2.1-.2-.1.4-.1.8-.1 1.2 0 1.3.3 2.6 1 3.7 1.2 1.9 3.3 3.1 5.6 3.1 1 0 2-.2 2.9-.6 1.8-.8 3.1-2.4 3.6-4.3.2-.8.2-1.6.1-2.4.6.1 1.2.1 1.8.1 2.7 0 5.2-.7 7.4-2 .5-.3 1-.7 1.4-1.1.2-.2.4-.4.6-.6.1-.1.2-.3.3-.4.1-.1.2-.3.2-.4.1-.1.1-.3.1-.4 0-.1 0-.3-.1-.4-.1-.1-.1-.3-.2-.4-.1-.1-.2-.3-.3-.4-.2-.2-.4-.4-.6-.6-.4-.4-.9-.8-1.4-1.1-2.2-1.3-4.7-2-7.4-2-.6 0-1.2 0-1.8.1.1-.8.1-1.6-.1-2.4-.5-1.9-1.8-3.5-3.6-4.3z"/></svg>') no-repeat center; background-size: contain; }
+        .header-title { color: white; }
+        .header-title-main { font-size: 18px; font-weight: 600; line-height: 1.2; }
+        .header-title-sub { font-size: 14px; color: #c1c7cd; line-height: 1.2; }
+        .user-info { display: flex; align-items: center; gap: 20px; color: #c1c7cd; font-size: 14px; }
+        .breadcrumb { background: white; padding: 16px 24px; border-bottom: 1px solid #d2d2d2; font-size: 14px; color: #6a6e73; }
+        .breadcrumb a { color: #0066cc; text-decoration: none; }
+        .content { padding: 24px; }
+        .check-title { font-size: 24px; font-weight: 600; color: #151515; margin-bottom: 8px; }
+        .check-subtitle { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+        .severity-badge { background: #92d400; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .control-id { background: #e7f3ff; color: #0066cc; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .tabs { display: flex; border-bottom: 1px solid #d2d2d2; margin-bottom: 24px; }
+        .tab { padding: 12px 24px; cursor: pointer; border-bottom: 2px solid transparent; font-weight: 500; }
+        .tab.active { border-bottom-color: #0066cc; color: #0066cc; }
+        .section { background: white; border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+        .section-header { background: #f8f9fa; padding: 16px 24px; border-bottom: 1px solid #d2d2d2; font-weight: 600; color: #151515; }
+        .section-content { padding: 24px; }
+        .code-block { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 20px; overflow-x: auto; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 13px; line-height: 1.6; margin: 16px 0; white-space: pre; }
+        .yaml-key { color: #0066cc; font-weight: 600; }
+        .yaml-string { color: #22863a; }
+        .yaml-number { color: #005cc5; }
+        .yaml-boolean { color: #d73a49; font-weight: 500; }
+        .yaml-comment { color: #6a737d; font-style: italic; }
+        .yaml-operator { color: #d73a49; }
+        .yaml-indent { color: #6a737d; }
+        .label-item { display: flex; margin: 8px 0; font-family: monospace; font-size: 14px; }
+        .label-key { color: #6a6e73; min-width: 200px; }
+        .label-value { color: #151515; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">🎩</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">Red Hat</div>
+                    <div style="font-size: 12px; color: #c1c7cd;">Advanced Cluster Security<br>for Kubernetes</div>
+                </div>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item">Dashboard</div>
+                <div class="nav-item">Network</div>
+                <div class="nav-item">Violations</div>
+                <div class="nav-item active">Compliance</div>
+                <div class="nav-item submenu active">Workload Compliance</div>
+                <div class="nav-item submenu">OpenShift Schedules</div>
+                <div class="nav-item submenu">Dashboard</div>
+                <div class="nav-item">Vulnerability Management</div>
+                <div class="nav-item">Configuration Management</div>
+                <div class="nav-item">Risk</div>
+                <div class="nav-item">Platform Configuration</div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <div class="header-brand">
+                    <div class="header-logo"><div class="redhat-logo"></div></div>
+                    <div class="header-title">
+                        <div class="header-title-main">Red Hat Advanced Cluster Security</div>
+                        <div class="header-title-sub">for Kubernetes</div>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <span>🔍 Search</span><span>💻 CLI</span><span>🔔</span><span>❓</span><span>MSM ▼</span>
+                </div>
+            </div>
+            <div class="breadcrumb">
+                <a href="compliance-dashboard.html">Compliance</a> > require-labels
+            </div>
+            <div class="content">
+                <div class="check-title">require-labels</div>
+                <div class="check-subtitle">
+                    <span class="severity-badge">Pass: 3</span>
+                    <span class="control-id">POLICY-001</span>
+                </div>
+                <div class="tabs">
+                    <div class="tab">Results</div>
+                    <div class="tab active">Details</div>
+                </div>
+                <div class="section">
+                    <div class="section-header">Description</div>
+                    <div class="section-content">
+                        <strong>Ensure Required Labels Policy</strong><br><br>
+                        Ensures all pods have required labels, specifically the 'app' label. This policy helps maintain 
+                        consistency in resource labeling and supports effective resource management and monitoring.
+                    </div>
+                </div>
+                <div class="section">
+                    <div class="section-header">Instructions</div>
+                    <div class="section-content">
+                        Apply the following Kyverno policy for label validation:
+                        <div class="code-block">apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-labels
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: check-required-labels
+      match:
+        any:
+        - resources:
+            kinds:
+            - Pod
+      validate:
+        message: "All pods must have the 'app' label."
+        pattern:
+          metadata:
+            labels:
+              app: "?*"</div>
+                    </div>
+                </div>
+                <div class="section">
+                    <div class="section-header">Policy</div>
+                    <div class="section-content">
+                        <div class="code-block"><span class="yaml-operator">-</span> <span class="yaml-key">name</span><span class="yaml-operator">:</span> <span class="yaml-string">check-required-labels</span>
+  <span class="yaml-key">match</span><span class="yaml-operator">:</span>
+    <span class="yaml-key">any</span><span class="yaml-operator">:</span>
+    <span class="yaml-operator">-</span> <span class="yaml-key">resources</span><span class="yaml-operator">:</span>
+        <span class="yaml-key">kinds</span><span class="yaml-operator">:</span>
+        <span class="yaml-operator">-</span> <span class="yaml-string">Pod</span>
+  <span class="yaml-key">validate</span><span class="yaml-operator">:</span>
+    <span class="yaml-key">message</span><span class="yaml-operator">:</span> <span class="yaml-operator">&gt;-</span>
+      <span class="yaml-string">All pods must have the 'app' label.</span>
+    <span class="yaml-key">pattern</span><span class="yaml-operator">:</span>
+      <span class="yaml-key">metadata</span><span class="yaml-operator">:</span>
+        <span class="yaml-key">labels</span><span class="yaml-operator">:</span>
+          <span class="yaml-key">app</span><span class="yaml-operator">:</span> <span class="yaml-string">"?*"</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
