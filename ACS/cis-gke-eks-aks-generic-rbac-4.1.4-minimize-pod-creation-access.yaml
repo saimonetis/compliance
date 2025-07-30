@@ -1,0 +1,43 @@
+apiVersion: config.stackrox.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: cis-gke-eks-aks-generic-rbac-4.1.4-minimize-pod-creation-access
+spec:
+  policyName: CIS-GKE-EKS-AKS-Generic-RBAC-4.1.4 - Minimize access to create pods
+  description: 'CIS Kubernetes Benchmark 4.1.4: Minimize access to create pods'
+  rationale: The ability to create pods provides significant control over the cluster, including potential privilege escalation through pod specifications. This access should be limited to authorized users and service accounts only.
+  remediation: |
+    Review roles and clusterroles with pod creation permissions:
+    kubectl get roles,clusterroles -A -o yaml | grep -A 10 -B 5 '"pods"'
+    
+    Remove unnecessary create, update, patch, delete verbs for pods:
+    kubectl edit role/clusterrole [role-name]
+    
+    Use more specific permissions like:
+      resources: ["pods"]
+      verbs: ["get", "list", "watch"]
+    
+    Instead of broad creation permissions.
+  categories:
+    - Security Best Practices
+    - RBAC
+    - Workload Management
+  lifecycleStages:
+    - DEPLOY
+  eventSource: NOT_APPLICABLE
+  severity: MEDIUM_SEVERITY
+  policySections:
+    - sectionName: RBAC Configuration
+      policyGroups:
+        - fieldName: Service Account
+          booleanOperator: AND
+          values:
+            - value: ".*"
+  mitreAttackVectors:
+    - tactic: TA0004
+      techniques:
+        - T1078
+        - T1053
+  criteriaLocked: false
+  mitreVectorsLocked: false
+  isDefault: false 

@@ -1,0 +1,45 @@
+apiVersion: config.stackrox.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: cis-gke-eks-aks-generic-container-privileged-prevention
+spec:
+  policyName: CIS-GKE-EKS-AKS-Generic-Container - Prevent privileged containers
+  description: 'CIS Kubernetes Benchmark: Ensure containers do not run in privileged mode'
+  rationale: Privileged containers have access to all Linux capabilities and host devices, effectively providing root access to the host system. This significantly increases the attack surface and potential for container escape.
+  remediation: |
+    Remove privileged: true from container specifications:
+    kubectl get pods -A -o yaml | grep -B 5 -A 5 privileged
+    
+    Edit deployments to remove privileged access:
+    kubectl edit deployment [deployment-name]
+    
+    Remove or set to false:
+      spec.template.spec.containers[].securityContext.privileged: false
+    
+    Use specific capabilities instead of privileged mode when elevated permissions are needed.
+  categories:
+    - Security Best Practices
+    - Container Security
+    - Privilege Escalation
+  lifecycleStages:
+    - DEPLOY
+  eventSource: NOT_APPLICABLE
+  severity: HIGH_SEVERITY
+  policySections:
+    - sectionName: Container Configuration
+      policyGroups:
+        - fieldName: Privileged
+          booleanOperator: OR
+          values:
+            - value: "true"
+  mitreAttackVectors:
+    - tactic: TA0004
+      techniques:
+        - T1611
+        - T1068
+    - tactic: TA0005
+      techniques:
+        - T1068
+  criteriaLocked: false
+  mitreVectorsLocked: false
+  isDefault: false 

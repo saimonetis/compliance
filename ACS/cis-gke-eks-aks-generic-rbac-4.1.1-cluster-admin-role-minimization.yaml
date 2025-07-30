@@ -1,0 +1,38 @@
+apiVersion: config.stackrox.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: cis-gke-eks-aks-generic-rbac-4.1.1-cluster-admin-role-minimization
+spec:
+  policyName: CIS-GKE-EKS-AKS-Generic-RBAC-4.1.1 - Ensure cluster-admin role is only used where required
+  description: 'CIS Kubernetes Benchmark 4.1.1: Ensure that the cluster-admin role is only used where required'
+  rationale: The cluster-admin role provides unrestricted access to all cluster resources. Excessive use increases the risk of privilege escalation and unauthorized access to sensitive resources.
+  remediation: |
+    Review all clusterrolebindings to cluster-admin role:
+    kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind | grep cluster-admin
+    
+    Remove unnecessary bindings:
+    kubectl delete clusterrolebinding [binding-name]
+    
+    Create more restrictive roles where possible instead of using cluster-admin.
+  categories:
+    - Security Best Practices
+    - RBAC
+  lifecycleStages:
+    - DEPLOY
+  eventSource: NOT_APPLICABLE
+  severity: HIGH_SEVERITY
+  policySections:
+    - sectionName: RBAC Configuration
+      policyGroups:
+        - fieldName: Cluster Role
+          booleanOperator: OR
+          values:
+            - value: "cluster-admin"
+  mitreAttackVectors:
+    - tactic: TA0004
+      techniques:
+        - T1078
+        - T1068
+  criteriaLocked: false
+  mitreVectorsLocked: false
+  isDefault: false 
