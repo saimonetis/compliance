@@ -1,0 +1,197 @@
+# CIS-5.1.6 Test Resources: Service Account Token Mounting
+# This file contains examples to test the CIS-5.1.6 Kyverno policy
+
+---
+# SERVICE ACCOUNTS
+---
+# GOOD EXAMPLE - Service account with explicit no automount (recommended default)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: secure-sa-no-api-access
+  namespace: cis-test
+  labels:
+    example: "compliant"
+    cis-control: "5.1.6"
+automountServiceAccountToken: false
+
+---
+# GOOD EXAMPLE - Service account that needs API access with proper annotation
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: api-access-sa
+  namespace: cis-test
+  annotations:
+    security.kubernetes.io/api-access: "required"
+    description: "Used by monitoring pods that need to list other pods"
+  labels:
+    example: "compliant"
+    cis-control: "5.1.6"
+automountServiceAccountToken: true
+
+---
+# BAD EXAMPLE - Service account with implicit automount (will trigger warning)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: implicit-automount-sa
+  namespace: cis-test
+  labels:
+    example: "warning"
+    cis-control: "5.1.6"
+# No explicit automountServiceAccountToken setting - relies on defaults
+
+---
+# PODS
+---
+# GOOD EXAMPLE - Pod explicitly disables token mounting (most secure)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-pod-no-token
+  namespace: cis-test
+  labels:
+    example: "compliant"
+    cis-control: "5.1.6"
+spec:
+  serviceAccountName: secure-sa-no-api-access
+  automountServiceAccountToken: false  # ✅ Explicitly disabled
+  containers:
+  - name: app
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+
+---
+# GOOD EXAMPLE - Pod that needs API access with proper annotation and dedicated SA
+apiVersion: v1
+kind: Pod
+metadata:
+  name: api-client-pod
+  namespace: cis-test
+  annotations:
+    security.kubernetes.io/api-access: "required"
+    description: "Monitoring pod that lists other pods in the cluster"
+  labels:
+    example: "compliant"
+    cis-control: "5.1.6"
+spec:
+  serviceAccountName: api-access-sa  # ✅ Uses dedicated service account
+  automountServiceAccountToken: true  # ✅ Explicitly enabled with annotation
+  containers:
+  - name: monitor
+    image: curlimages/curl:latest
+    command: ["sleep", "3600"]
+    env:
+    - name: KUBERNETES_SERVICE_HOST
+      value: "kubernetes.default.svc"
+    - name: KUBERNETES_SERVICE_PORT
+      value: "443"
+
+---
+# BAD EXAMPLE - Pod uses default service account with token mounting
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-default-sa-with-token
+  namespace: cis-test
+  labels:
+    example: "blocked-by-policy"
+    cis-control: "5.1.6"
+spec:
+  serviceAccountName: default  # ❌ Uses default service account
+  automountServiceAccountToken: true  # ❌ Enables token mounting with default SA
+  containers:
+  - name: app
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+
+---
+# BAD EXAMPLE - Pod enables token mounting without annotation
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-token-no-annotation
+  namespace: cis-test
+  labels:
+    example: "blocked-by-policy"
+    cis-control: "5.1.6"
+spec:
+  serviceAccountName: secure-sa-no-api-access
+  automountServiceAccountToken: true  # ❌ Enables token mounting without annotation
+  containers:
+  - name: app
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+
+---
+# WARNING EXAMPLE - Pod doesn't specify automountServiceAccountToken
+apiVersion: v1
+kind: Pod
+metadata:
+  name: warning-pod-implicit-behavior
+  namespace: cis-test
+  labels:
+    example: "warning"
+    cis-control: "5.1.6"
+spec:
+  serviceAccountName: secure-sa-no-api-access
+  # ⚠️ No explicit automountServiceAccountToken setting
+  containers:
+  - name: app
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+
+---
+# GOOD EXAMPLE - Pod inherits disabled token mounting from service account
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-pod-inherited-no-token
+  namespace: cis-test
+  labels:
+    example: "compliant"
+    cis-control: "5.1.6"
+spec:
+  serviceAccountName: secure-sa-no-api-access  # SA has automountServiceAccountToken: false
+  automountServiceAccountToken: false  # ✅ Pod also explicitly disables it
+  containers:
+  - name: app
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+
+---
+# RBAC for the API access service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-reader
+  labels:
+    example: "rbac-support"
+    cis-control: "5.1.6"
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: api-access-sa-binding
+  labels:
+    example: "rbac-support"
+    cis-control: "5.1.6"
+subjects:
+- kind: ServiceAccount
+  name: api-access-sa
+  namespace: cis-test
+roleRef:
+  kind: ClusterRole
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io 
