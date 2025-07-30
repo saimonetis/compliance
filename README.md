@@ -46,6 +46,16 @@ This compliance dashboard provides an intuitive interface for viewing and managi
 ├── cis-5.1.5-prevent-default-service-account-automount.html
 ├── cis-5.1.5-prevent-empty-service-account.html
 ├── cis-5.1.6-require-explicit-token-mounting-decision.html
+├── Dockerfile                                         # Container image definition
+├── openshift/                                         # 🌐 OpenShift deployment files
+│   ├── README.md                                      # Deployment documentation
+│   ├── build-and-deploy.sh                          # One-command deployment script
+│   ├── nginx.conf                                     # Nginx configuration
+│   ├── deployment.yaml                               # Kubernetes deployment
+│   ├── service.yaml                                  # Service definition
+│   ├── route.yaml                                    # OpenShift route (HTTPS)
+│   ├── namespace.yaml                                # Dedicated namespace
+│   └── kustomization.yaml                            # Kustomize configuration
 ├── Kyverno/                                           # Kyverno policy files
 │   ├── README-cis-5.1.5.md
 │   ├── README-cis-5.1.6.md
@@ -61,8 +71,28 @@ This compliance dashboard provides an intuitive interface for viewing and managi
 ### Prerequisites
 - Web browser (Chrome, Firefox, Safari, Edge)
 - Web server (optional, for local development)
+- **For OpenShift deployment**: OpenShift CLI (`oc`) and cluster access
 
-### Usage
+### Usage Options
+
+#### 🌐 Option 1: Deploy to OpenShift (Recommended for Production)
+
+**One-command deployment to make it accessible via internet:**
+
+```bash
+git clone https://github.com/saimonetis/compliance.git
+cd compliance
+./openshift/build-and-deploy.sh
+```
+
+This will:
+- Build and deploy the dashboard to your OpenShift cluster
+- Create an HTTPS-accessible route
+- Provide you with a public URL for internet access
+
+📖 **[Full OpenShift deployment documentation](openshift/README.md)**
+
+#### 💻 Option 2: Local Development
 
 1. **Clone the repository**:
    ```bash

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: compliance-dashboard
+  labels:
+    name: compliance-dashboard
+    purpose: kubernetes-compliance-monitoring
+  annotations:
+    description: "Namespace for Kubernetes Compliance Dashboard application" 

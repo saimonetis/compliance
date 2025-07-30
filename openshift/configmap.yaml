@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: compliance-dashboard-files
+  labels:
+    app: compliance-dashboard
+data:
+  # This ConfigMap will be populated with HTML files
+  # We'll use a separate script to generate this or mount the files directly
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta http-equiv="refresh" content="0; url=compliance-dashboard.html">
+        <title>Compliance Dashboard</title>
+    </head>
+    <body>
+        <p>Redirecting to <a href="compliance-dashboard.html">Compliance Dashboard</a>...</p>
+    </body>
+    </html> 
